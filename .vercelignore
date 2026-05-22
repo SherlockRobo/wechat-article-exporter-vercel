@@ -1,0 +1,8 @@
+samples
+.nuxt
+.output
+.nitro
+.cache
+node_modules
+logs
+*.log
