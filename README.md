@@ -61,10 +61,14 @@ Vercel 只负责页面托管、接口转发和登录态代理，不维护中心�
 如果这个版本帮到你，可以：
 
 1. 给 GitHub 项目点 Star。
-2. 提交 Issue 或 Pull Request。
-3. 在自己的 fork 中替换 `assets/wechat-support.png` 为自己的收款码，并按需修改“说明与打赏”页面。
+2. 扫描“说明与打赏”页里的公众号二维码，关注后续更新。
+3. 使用“说明与打赏”页里的微信打赏码支持维护。
+4. 提交 Issue 或 Pull Request。
 
-本仓库默认不展示原作者或第三方收款码，避免公开部署后误收款。
+如果你 fork 后想换成自己的二维码，可以替换：
+
+- `assets/qrcode-official-account.jpg`
+- `assets/qrcode-donate.jpg`
 
 ## 合规声明
 

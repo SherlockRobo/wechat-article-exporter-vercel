@@ -41,7 +41,7 @@
         </div>
       </section>
 
-      <section class="mt-5 grid max-w-6xl grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.65fr]">
+      <section class="mt-5 grid max-w-6xl grid-cols-1 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-950">
             <span class="i-lucide:list-checks text-xl text-blue-600" />
@@ -58,17 +58,22 @@
         <div class="rounded-lg border border-blue-200 bg-blue-50 p-5 shadow-sm">
           <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-950">
             <span class="i-lucide:heart-handshake text-xl text-blue-600" />
-            支持项目
+            关注与支持
           </h3>
           <p class="mt-3 text-sm leading-6 text-slate-700">
-            如果这个版本帮到你，可以给 GitHub 项目点 Star、提交 Issue，或者在自己的 fork 里替换收款码后开放给团队使用。
+            如果这个版本帮到你，可以关注公众号获取更新，或者用微信打赏支持维护。
           </p>
-          <div class="mt-4 rounded-lg border border-dashed border-blue-300 bg-white p-4 text-center text-sm text-slate-600">
-            <div class="i-lucide:qr-code mx-auto mb-2 text-3xl text-blue-600" />
-            打赏二维码位
-            <p class="mt-2 text-xs leading-5">
-              将自己的收款码放到 <code class="rounded bg-slate-100 px-1 py-0.5">assets/wechat-support.png</code> 后，可按需改成图片展示。
-            </p>
+          <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="rounded-lg border border-blue-200 bg-white p-3 text-center shadow-sm">
+              <img :src="officialAccountQr" alt="公众号二维码" class="mx-auto aspect-square w-full max-w-[190px] rounded-md object-contain" />
+              <p class="mt-3 text-sm font-semibold text-slate-950">关注公众号</p>
+              <p class="mt-1 text-xs leading-5 text-slate-600">扫码获取项目更新和使用说明。</p>
+            </div>
+            <div class="rounded-lg border border-emerald-200 bg-white p-3 text-center shadow-sm">
+              <img :src="donateQr" alt="微信打赏二维码" class="mx-auto aspect-[0.72] w-full max-w-[190px] rounded-md object-contain" />
+              <p class="mt-3 text-sm font-semibold text-slate-950">微信打赏</p>
+              <p class="mt-1 text-xs leading-5 text-slate-600">感谢你的支持，哪怕只是一个 Star。</p>
+            </div>
           </div>
         </div>
       </section>
@@ -84,6 +89,8 @@
 </template>
 
 <script setup lang="ts">
+import donateQr from '~/assets/qrcode-donate.jpg';
+import officialAccountQr from '~/assets/qrcode-official-account.jpg';
 import { websiteName } from '~/config';
 
 useHead({
