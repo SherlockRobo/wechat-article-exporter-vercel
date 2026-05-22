@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie';
 import type { ArticleAsset } from './article';
+import type { ArticleActivity } from './activity';
 import type { Asset } from './assets';
 import type { CommentAsset } from './comment';
 import type { CommentReplyAsset } from './comment_reply';
@@ -11,6 +12,7 @@ import type { ResourceAsset } from './resource';
 import type { ResourceMapAsset } from './resource-map';
 
 const db = new Dexie('exporter.wxdown.online') as Dexie & {
+  article_activity: EntityTable<ArticleActivity, 'id'>;
   article: Table<ArticleAsset, string>;
   asset: EntityTable<Asset, 'url'>;
   comment: EntityTable<CommentAsset, 'url'>;
@@ -49,6 +51,10 @@ db.version(2).stores({
 
 db.version(3).stores({
   debug: 'url, fakeid',
+});
+
+db.version(4).stores({
+  article_activity: '++id, fakeid, url, type, status, createdAt, [url+type]',
 });
 
 export { db };

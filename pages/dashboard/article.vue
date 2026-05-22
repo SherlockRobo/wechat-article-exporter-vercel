@@ -23,6 +23,14 @@ import GridStatusBar from '~/components/grid/StatusBar.vue';
 import AccountSelectorForArticle from '~/components/selector/AccountSelectorForArticle.vue';
 import { isDev, websiteName } from '~/config';
 import { sharedGridOptions } from '~/config/shared-grid-options';
+import {
+  addArticleActivities,
+  addArticleActivity,
+  articleActivityLabel,
+  type ArticleActivityType,
+  type ArticleExportFormat,
+  getLatestArticleActivityMap,
+} from '~/store/v2/activity';
 import { articleDeleted, getArticleCache, updateArticleStatus } from '~/store/v2/article';
 import { getCommentCache } from '~/store/v2/comment';
 import { getDebugCache } from '~/store/v2/debug';
@@ -49,9 +57,33 @@ interface Article extends AppMsgExWithFakeID, Partial<ArticleMetadata> {
    * 留言内容是否已下载
    */
   commentDownload: boolean;
+
+  /**
+   * 最近一次抓取成功时间
+   */
+  lastFetchAt?: number;
+
+  /**
+   * 是否已导出过
+   */
+  exported: boolean;
+
+  /**
+   * 最近一次导出成功时间
+   */
+  lastExportAt?: number;
+
+  /**
+   * 最近一次导出格式
+   */
+  lastExportFormat?: ArticleExportFormat;
 }
 
 let globalRowData: Article[] = [];
+
+function formatOptionalTimeStamp(timestamp?: number) {
+  return timestamp ? formatTimeStamp(Math.floor(timestamp / 1000)) : '';
+}
 
 const columnDefs = ref<ColDef[]>([
   {
@@ -160,6 +192,19 @@ const columnDefs = ref<ColDef[]>([
     cellClass: 'flex justify-center items-center',
   },
   {
+    headerName: '最近抓取',
+    field: 'lastFetchAt',
+    valueFormatter: p => formatOptionalTimeStamp(p.value),
+    filter: 'agDateColumnFilter',
+    filterParams: createDateColumnFilterParams(),
+    filterValueGetter: (params: ValueGetterParams) => {
+      const value = params.getValue('lastFetchAt');
+      return value ? new Date(value) : null;
+    },
+    minWidth: 180,
+    cellClass: 'flex justify-center items-center font-mono',
+  },
+  {
     field: 'commentDownload',
     headerName: '留言已下载',
     cellDataType: 'boolean',
@@ -167,6 +212,35 @@ const columnDefs = ref<ColDef[]>([
     filterParams: createBooleanColumnFilterParams('已下载', '未下载'),
     minWidth: 150,
     cellClass: 'flex justify-center items-center',
+  },
+  {
+    headerName: '已导出',
+    field: 'exported',
+    cellDataType: 'boolean',
+    filter: 'agSetColumnFilter',
+    filterParams: createBooleanColumnFilterParams('已导出', '未导出'),
+    minWidth: 120,
+    cellClass: 'flex justify-center items-center',
+  },
+  {
+    headerName: '最近导出',
+    field: 'lastExportAt',
+    valueFormatter: p => formatOptionalTimeStamp(p.value),
+    filter: 'agDateColumnFilter',
+    filterParams: createDateColumnFilterParams(),
+    filterValueGetter: (params: ValueGetterParams) => {
+      const value = params.getValue('lastExportAt');
+      return value ? new Date(value) : null;
+    },
+    minWidth: 180,
+    cellClass: 'flex justify-center items-center font-mono',
+  },
+  {
+    headerName: '导出格式',
+    field: 'lastExportFormat',
+    filter: 'agSetColumnFilter',
+    minWidth: 120,
+    cellClass: 'flex justify-center items-center font-mono uppercase',
   },
   {
     headerName: '阅读',
@@ -369,22 +443,40 @@ async function switchTableData(fakeid: string) {
   loading.value = true;
   const articles: Article[] = [];
   const data = await getArticleCache(fakeid, Math.floor(Date.now() / 1000));
+  const activityMap = await getLatestArticleActivityMap(data.map(article => article.link));
   for (const article of data) {
     const contentDownload = (await getHtmlCache(article.link)) !== undefined;
     const commentDownload = (await getCommentCache(article.link)) !== undefined;
     const metadata = await getMetadataCache(article.link);
+    const latestContent = activityMap.get(`${article.link}:fetch_content:success`);
+    const latestMetadata = activityMap.get(`${article.link}:fetch_metadata:success`);
+    const latestComment = activityMap.get(`${article.link}:fetch_comment:success`);
+    const latestExport = activityMap.get(`${article.link}:export:success`);
+    const lastFetchAt = Math.max(
+      latestContent?.createdAt ?? 0,
+      latestMetadata?.createdAt ?? 0,
+      latestComment?.createdAt ?? 0
+    );
+    const activityState = {
+      lastFetchAt: lastFetchAt > 0 ? lastFetchAt : undefined,
+      exported: latestExport !== undefined,
+      lastExportAt: latestExport?.createdAt,
+      lastExportFormat: latestExport?.format,
+    };
     if (metadata) {
       articles.push({
         ...metadata,
         ...article,
         contentDownload: contentDownload,
         commentDownload: commentDownload,
+        ...activityState,
       });
     } else {
       articles.push({
         ...article,
         contentDownload: contentDownload,
         commentDownload: commentDownload,
+        ...activityState,
       });
     }
   }
@@ -412,6 +504,73 @@ const contentNotDownloadedCount = computed(() => {
   return selectedArticles.value.filter(article => !article.contentDownload).length;
 });
 
+function getRecordBase(url: string) {
+  const article = globalRowData.find(article => article.link === url);
+  if (!article) return;
+
+  return {
+    fakeid: article.fakeid,
+    url: article.link,
+    title: article.title,
+  };
+}
+
+function updateArticleFetchState(url: string, activityType: ArticleActivityType) {
+  const article = globalRowData.find(article => article.link === url);
+  if (!article) return;
+
+  article.lastFetchAt = Date.now();
+  if (activityType === 'fetch_content') {
+    article.contentDownload = true;
+  }
+  if (activityType === 'fetch_comment') {
+    article.commentDownload = true;
+  }
+  updateRow(article);
+}
+
+async function recordFetchActivity(url: string, type: ArticleActivityType, status: 'success' | 'failed' | 'deleted', message?: string) {
+  const base = getRecordBase(url);
+  if (!base) return;
+
+  await addArticleActivity({
+    ...base,
+    type,
+    status,
+    message: message ?? `${articleActivityLabel(type)}抓取${status === 'success' ? '成功' : '失败'}`,
+  });
+
+  if (status === 'success') {
+    updateArticleFetchState(url, type);
+  }
+}
+
+async function recordExportActivities(type: ArticleExportFormat, urls: string[]) {
+  const createdAt = Date.now();
+  const activities = urls
+    .map(url => getRecordBase(url))
+    .filter((record): record is NonNullable<ReturnType<typeof getRecordBase>> => record !== undefined)
+    .map(record => ({
+      ...record,
+      type: 'export' as const,
+      status: 'success' as const,
+      format: type,
+      createdAt,
+      message: `导出为 ${type}`,
+    }));
+
+  await addArticleActivities(activities);
+
+  for (const url of urls) {
+    const article = globalRowData.find(article => article.link === url);
+    if (!article) continue;
+    article.exported = true;
+    article.lastExportAt = createdAt;
+    article.lastExportFormat = type;
+    updateRow(article);
+  }
+}
+
 const {
   loading: downloadBtnLoading,
   completed_count: downloadCompletedCount,
@@ -431,20 +590,23 @@ const {
       // 修复之前代码逻辑错误导致的数据库状态被误设置为【已删除】
       article.is_deleted = false;
       articleDeleted(url, false);
+      void recordFetchActivity(url, 'fetch_content', 'success');
     } else {
       console.warn(`${url} not found in table data when update contentDownload`);
     }
   },
-  onStatusChange(url: string, status: string) {
+  onStatusChange(url: string, status: string, taskType) {
     const article = globalRowData.find(article => article.link === url);
     if (article) {
       article._status = status;
       updateRow(article);
 
       updateArticleStatus(url, status);
+      const activityType = taskType === 'metadata' ? 'fetch_metadata' : 'fetch_content';
+      void recordFetchActivity(url, activityType, 'failed', status);
     }
   },
-  onDelete(url: string) {
+  onDelete(url: string, taskType) {
     const article = globalRowData.find(article => article.link === url);
     if (article) {
       article.is_deleted = true;
@@ -453,6 +615,8 @@ const {
 
       updateArticleStatus(url, '已删除');
       articleDeleted(url);
+      const activityType = taskType === 'metadata' ? 'fetch_metadata' : 'fetch_content';
+      void recordFetchActivity(url, activityType, 'deleted', '文章已删除');
     }
   },
   onMetadata(url: string, metadata: Metadata) {
@@ -476,6 +640,7 @@ const {
       }
 
       updateRow(article);
+      void recordFetchActivity(url, 'fetch_metadata', 'success');
     } else {
       console.warn(`${url} not found in table data when update metadata`);
     }
@@ -485,6 +650,7 @@ const {
     if (article) {
       article.commentDownload = true;
       updateRow(article);
+      void recordFetchActivity(url, 'fetch_comment', 'success');
     } else {
       console.warn(`${url} not found in table data when update commentDownload`);
     }
@@ -497,7 +663,13 @@ const {
   completed_count: exportCompletedCount,
   total_count: exportTotalCount,
   exportFile,
-} = useExporter();
+} = useExporter({
+  onFinish: recordExportActivities,
+});
+
+function exportSelected(type: ArticleExportFormat) {
+  return exportFile(type, selectedArticleUrls.value, contentNotDownloadedCount.value);
+}
 
 async function debug() {
   const cache = await getDebugCache('https://mp.weixin.qq.com/s/0IEaqpJIBGykHFKqj-7xqw');
@@ -568,13 +740,13 @@ function copyWechatLink() {
               { label: 'Word (内测中)', event: 'export-article-word' },
               { label: 'PDF (内测中)', event: 'export-article-pdf' },
             ]"
-            @export-article-excel="exportFile('excel', selectedArticleUrls)"
-            @export-article-json="exportFile('json', selectedArticleUrls)"
-            @export-article-html="exportFile('html', selectedArticleUrls, contentNotDownloadedCount)"
-            @export-article-text="exportFile('text', selectedArticleUrls, contentNotDownloadedCount)"
-            @export-article-markdown="exportFile('markdown', selectedArticleUrls, contentNotDownloadedCount)"
-            @export-article-word="exportFile('word', selectedArticleUrls, contentNotDownloadedCount)"
-            @export-article-pdf="exportFile('pdf', selectedArticleUrls, contentNotDownloadedCount)"
+            @export-article-excel="exportSelected('excel')"
+            @export-article-json="exportSelected('json')"
+            @export-article-html="exportSelected('html')"
+            @export-article-text="exportSelected('text')"
+            @export-article-markdown="exportSelected('markdown')"
+            @export-article-word="exportSelected('word')"
+            @export-article-pdf="exportSelected('pdf')"
           >
             <UButton
               :loading="exportBtnLoading"

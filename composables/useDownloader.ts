@@ -4,21 +4,23 @@ import type { Metadata } from '~/store/v2/metadata';
 import { Downloader } from '~/utils/download/Downloader';
 import type { DownloaderStatus } from '~/utils/download/types';
 
+export type DownloadTaskType = 'html' | 'metadata' | 'comment' | 'fakeid';
+
 export interface DownloadArticleOptions {
   // 文章内容下载成功回调
-  onContent: (url: string) => void;
+  onContent: (url: string, type: DownloadTaskType) => void;
 
   // 文章状态异常回调(不含「已删除」)
-  onStatusChange: (url: string, status: string) => void;
+  onStatusChange: (url: string, status: string, type: DownloadTaskType) => void;
 
   // 文章被删除回调
-  onDelete: (url: string) => void;
+  onDelete: (url: string, type: DownloadTaskType) => void;
 
   // 文章阅读量抓取成功回调
-  onMetadata: (url: string, metadata: Metadata) => void;
+  onMetadata: (url: string, metadata: Metadata, type: DownloadTaskType) => void;
 
   // 文章留言抓取成功回调
-  onComment: (url: string) => void;
+  onComment: (url: string, type: DownloadTaskType) => void;
 
   // 修复单篇文章下载的 fakeid 专用
   onFakeID: (url: string, fakeid: string) => void;
@@ -51,17 +53,17 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
         );
         completed_count.value = status.completed.length;
         if (success && typeof options.onContent === 'function') {
-          options.onContent(url);
+          options.onContent(url, 'html');
         }
       });
       downloader.on('download:deleted', (url: string) => {
         if (typeof options.onDelete === 'function') {
-          options.onDelete(url);
+          options.onDelete(url, 'html');
         }
       });
       downloader.on('download:exception', (url: string, msg: string) => {
         if (typeof options.onStatusChange === 'function') {
-          options.onStatusChange(url, msg);
+          options.onStatusChange(url, msg, 'html');
         }
       });
       downloader.on('download:begin', () => {
@@ -110,17 +112,17 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
       });
       downloader.on('download:metadata', (url: string, metadata: Metadata) => {
         if (typeof options.onMetadata === 'function') {
-          options.onMetadata(url, metadata);
+          options.onMetadata(url, metadata, 'metadata');
         }
       });
       downloader.on('download:deleted', (url: string) => {
         if (typeof options.onDelete === 'function') {
-          options.onDelete(url);
+          options.onDelete(url, 'metadata');
         }
       });
       downloader.on('download:exception', (url: string, msg: string) => {
         if (typeof options.onStatusChange === 'function') {
-          options.onStatusChange(url, msg);
+          options.onStatusChange(url, msg, 'metadata');
         }
       });
       downloader.on('download:begin', () => {
@@ -164,7 +166,7 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
         );
         completed_count.value = status.completed.length;
         if (success && typeof options.onComment === 'function') {
-          options.onComment(url);
+          options.onComment(url, 'comment');
         }
       });
       downloader.on('download:begin', () => {

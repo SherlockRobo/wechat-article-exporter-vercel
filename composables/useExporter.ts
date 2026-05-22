@@ -1,9 +1,14 @@
 import { formatElapsedTime } from '#shared/utils/helpers';
 import toastFactory from '~/composables/toast';
+import type { ArticleExportFormat } from '~/store/v2/activity';
 import { Exporter } from '~/utils/download/Exporter';
 import type { ExporterStatus } from '~/utils/download/types';
 
-export default () => {
+interface UseExporterOptions {
+  onFinish?: (type: ArticleExportFormat, urls: string[]) => void | Promise<void>;
+}
+
+export default (options: UseExporterOptions = {}) => {
   const toast = toastFactory();
 
   const loading = ref(false);
@@ -30,9 +35,10 @@ export default () => {
     manager.on('export:progress', (num: number) => {
       completed_count.value = num;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('Excel 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('excel', urls);
     });
 
     try {
@@ -65,9 +71,10 @@ export default () => {
     manager.on('export:progress', (num: number) => {
       completed_count.value = num;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('Json 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('json', urls);
     });
 
     try {
@@ -110,9 +117,10 @@ export default () => {
     manager.on('export:write:progress', (index: number) => {
       completed_count.value = index;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('HTML 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('html', urls);
     });
 
     try {
@@ -147,9 +155,10 @@ export default () => {
     manager.on('export:progress', (index: number) => {
       completed_count.value = index;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('Txt 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('text', urls);
     });
 
     try {
@@ -184,9 +193,10 @@ export default () => {
     manager.on('export:progress', (index: number) => {
       completed_count.value = index;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('Markdown 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('markdown', urls);
     });
 
     try {
@@ -221,9 +231,10 @@ export default () => {
     manager.on('export:progress', (index: number) => {
       completed_count.value = index;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('Word 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('word', urls);
     });
 
     try {
@@ -266,9 +277,10 @@ export default () => {
     manager.on('export:write:progress', (index: number) => {
       completed_count.value = index;
     });
-    manager.on('export:finish', (seconds: number) => {
+    manager.on('export:finish', async (seconds: number) => {
       console.debug('耗时:', formatElapsedTime(seconds));
       toast.success('PDF 导出完成', `本次导出耗时 ${formatElapsedTime(seconds)}`);
+      await options.onFinish?.('pdf', urls);
     });
 
     try {
