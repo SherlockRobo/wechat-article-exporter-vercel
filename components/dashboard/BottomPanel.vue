@@ -101,7 +101,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <footer class="flex flex-col space-y-2 pt-3 border-t dark:border-slate-600">
+  <footer class="flex flex-col space-y-2 pt-3 cathay-bottom-panel">
     <div v-if="loginAccount" class="space-y-3">
       <div class="flex items-center space-x-2">
         <img
@@ -124,14 +124,14 @@ onUnmounted(() => {
         <UButton
           icon="i-heroicons-arrow-left-start-on-rectangle-16-solid"
           :loading="logoutBtnLoading"
-          class="bg-slate-10 hover:bg-rose-500 disabled:bg-rose-500"
+          class="cathay-logout-button"
           @click="logout"
           >退出
         </UButton>
       </div>
-      <div class="text-sm">
+      <div class="text-sm text-[color:var(--cathay-muted)]">
         <span>登录信息过期时间还剩: </span>
-        <span class="font-mono" :class="warning ? 'text-rose-500' : 'text-green-500'">{{ distance }}</span>
+        <span class="font-mono" :class="warning ? 'text-red-600' : 'text-[color:var(--cathay-green)]'">{{ distance }}</span>
       </div>
     </div>
     <div v-else>
@@ -140,3 +140,20 @@ onUnmounted(() => {
     <StorageUsage />
   </footer>
 </template>
+
+<style scoped>
+.cathay-bottom-panel {
+  border-top: 1px solid var(--cathay-line);
+  color: var(--cathay-ink);
+}
+
+.cathay-logout-button {
+  background: var(--cathay-green) !important;
+  color: #fffdf7 !important;
+  box-shadow: 0 8px 20px rgba(0, 107, 69, 0.16);
+}
+
+.cathay-logout-button:hover {
+  background: var(--cathay-green-dark) !important;
+}
+</style>

@@ -1,12 +1,12 @@
 <template>
-  <div class="flex">
+  <div class="flex cathay-dashboard">
     <!-- 左侧边栏 -->
     <SideBar />
 
-    <div class="flex flex-col flex-1 overflow-hidden h-screen">
+    <div class="flex flex-col flex-1 overflow-hidden h-screen cathay-main">
       <!-- 顶部操作栏 -->
       <div
-        class="flex h-[60px] flex-shrink-0 items-center justify-between border-b border-slate-6 dark:border-slate-600 px-6"
+        class="flex h-[60px] flex-shrink-0 items-center justify-between px-6 cathay-header"
       >
         <div id="title"></div>
         <GlobalActions />

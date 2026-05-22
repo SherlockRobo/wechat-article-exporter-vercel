@@ -16,6 +16,9 @@ import { isDev } from '~/config';
 import { isChromeBrowser } from '~/utils';
 
 const runtimeConfig = useRuntimeConfig();
+const colorMode = useColorMode();
+
+colorMode.preference = 'light';
 
 ModuleRegistry.registerModules([AllEnterpriseModule]);
 LicenseManager.setLicenseKey(runtimeConfig.public.aggridLicense);
@@ -23,6 +26,12 @@ LicenseManager.setLicenseKey(runtimeConfig.public.aggridLicense);
 if (!isChromeBrowser()) {
   alert('为了更好的用户体验，推荐使用 Chrome 浏览器。');
 }
+
+onMounted(() => {
+  colorMode.preference = 'light';
+  document.documentElement.classList.remove('dark');
+  document.documentElement.classList.add('light');
+});
 </script>
 
 <style>

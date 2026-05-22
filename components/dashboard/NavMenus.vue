@@ -35,9 +35,21 @@ const items = ref<NavItem[]>([
 
 <style scoped>
 .nav-link.router-link-active {
-  @apply text-slate-12 dark:text-slate-200 bg-slate-3 dark:bg-slate-800 font-bold;
+  color: var(--cathay-green-dark);
+  background: rgba(0, 107, 69, 0.1);
+  box-shadow: inset 3px 0 0 var(--cathay-green);
+  font-weight: 700;
 }
 .nav-link:not(.router-link-active) {
-  @apply text-slate-11 dark:text-slate-200 hover:bg-slate-4 dark:hover:bg-slate-800 hover:text-slate-12;
+  color: var(--cathay-muted);
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
+}
+.nav-link:not(.router-link-active):hover {
+  color: var(--cathay-green-dark);
+  background: rgba(160, 132, 59, 0.11);
+  transform: translateX(2px);
 }
 </style>

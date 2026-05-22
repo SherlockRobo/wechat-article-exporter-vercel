@@ -54,8 +54,8 @@ const isCredentialActive = computed(() => credentialState.value === 'active');
             name="i-lucide:dog"
             :class="[
               'size-7 cursor-pointer transition-colors',
-              { 'text-zinc-400 hover:text-blue-500': !isCredentialActive },
-              { 'text-green-500 hover:text-green-600': isCredentialActive },
+              { 'text-[color:var(--cathay-weak)] hover:text-[color:var(--cathay-green)]': !isCredentialActive },
+              { 'text-[color:var(--cathay-green)] hover:text-[color:var(--cathay-green-dark)]': isCredentialActive },
             ]"
           />
           <span
@@ -74,7 +74,7 @@ const isCredentialActive = computed(() => credentialState.value === 'active');
         <UIcon
           name="i-lucide:book-open"
           @click="gotoLink(docsWebSite)"
-          class="size-7 text-zinc-400 hover:text-blue-500 cursor-pointer transition-colors"
+          class="size-7 text-[color:var(--cathay-weak)] hover:text-[color:var(--cathay-green)] cursor-pointer transition-colors"
         />
       </UTooltip>
     </li>
@@ -85,7 +85,7 @@ const isCredentialActive = computed(() => credentialState.value === 'active');
         <UIcon
           @click="gotoLink('https://github.com/SherlockRobo/wechat-article-exporter-vercel')"
           name="i-lucide:github"
-          class="size-7 text-zinc-400 hover:text-blue-500 cursor-pointer transition-colors"
+          class="size-7 text-[color:var(--cathay-weak)] hover:text-[color:var(--cathay-green)] cursor-pointer transition-colors"
         />
       </UTooltip>
     </li>

@@ -1,4 +1,17 @@
 :root {
+    --cathay-green: #006b45;
+    --cathay-green-dark: #004b33;
+    --cathay-ivory: #f2f0e7;
+    --cathay-paper: #faf7f2;
+    --cathay-card: #fffdf7;
+    --cathay-ink: #1c1b19;
+    --cathay-muted: #56544f;
+    --cathay-weak: #8a877f;
+    --cathay-line: #e0d7c8;
+    --cathay-gold: #a9843b;
+    --cathay-red: #d6261e;
+    --cathay-shadow: 0 18px 45px rgba(52, 43, 30, 0.08);
+
     /*--ag-selected-row-background-color: transparent;*/
 
     .ag-header-cell-label {
@@ -18,15 +31,18 @@
     }
 }
 
+html,
 body {
+    background: var(--cathay-paper);
+    color: var(--cathay-ink);
     overscroll-behavior: none; /* 阻止滚动到页面边缘的效果 */
 }
 ::selection {
-    background-color: yellow;
-    color: black;
+    background-color: rgba(0, 107, 69, 0.18);
+    color: var(--cathay-ink);
 }
 .highlight {
-    color: red;
+    color: var(--cathay-red);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -35,4 +51,93 @@ body {
 .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+}
+
+.cathay-dashboard {
+    min-height: 100vh;
+    background:
+        linear-gradient(90deg, rgba(0, 107, 69, 0.04) 0 1px, transparent 1px 100%),
+        linear-gradient(180deg, rgba(0, 107, 69, 0.035) 0 1px, transparent 1px 100%),
+        var(--cathay-paper);
+    background-size: 28px 28px;
+    color: var(--cathay-ink);
+}
+
+.cathay-main {
+    background: rgba(250, 247, 242, 0.92);
+}
+
+.cathay-header {
+    border-bottom: 1px solid var(--cathay-line) !important;
+    background: rgba(250, 247, 242, 0.92);
+    box-shadow: 0 1px 0 rgba(0, 107, 69, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+.cathay-header #title h1 {
+    color: var(--cathay-ink) !important;
+    letter-spacing: 0;
+}
+
+.cathay-sidebar {
+    border-right: 1px solid var(--cathay-line) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 253, 247, 0.94), rgba(242, 240, 231, 0.96)),
+        var(--cathay-ivory) !important;
+    box-shadow: 8px 0 30px rgba(52, 43, 30, 0.05);
+}
+
+.cathay-brand {
+    color: var(--cathay-green-dark);
+    letter-spacing: 0;
+}
+
+.cathay-brand::before {
+    display: inline-block;
+    width: 9px;
+    height: 24px;
+    margin-right: 10px;
+    border-radius: 999px;
+    background: var(--cathay-green);
+    content: "";
+    vertical-align: -5px;
+}
+
+.cathay-dashboard .ag-root-wrapper,
+.cathay-dashboard .ag-header,
+.cathay-dashboard .ag-row {
+    border-color: var(--cathay-line) !important;
+}
+
+.cathay-dashboard .ag-root-wrapper {
+    border-top: 1px solid var(--cathay-line);
+    background: var(--cathay-card);
+}
+
+.cathay-dashboard .ag-header {
+    background: #f7f1e8 !important;
+    color: var(--cathay-ink);
+}
+
+.cathay-dashboard .ag-row {
+    background: var(--cathay-card) !important;
+}
+
+.cathay-dashboard .ag-row-selected {
+    background: rgba(0, 107, 69, 0.09) !important;
+}
+
+.cathay-dashboard button.bg-blue-500,
+.cathay-dashboard button.bg-blue-400,
+.cathay-dashboard a.bg-blue-500,
+.cathay-dashboard a.bg-blue-400 {
+    background: var(--cathay-green) !important;
+    color: #fffdf7 !important;
+}
+
+.cathay-dashboard button.hover\:bg-blue-600:hover,
+.cathay-dashboard button.hover\:bg-blue-500:hover,
+.cathay-dashboard a.hover\:bg-blue-600:hover,
+.cathay-dashboard a.hover\:bg-blue-500:hover {
+    background: var(--cathay-green-dark) !important;
 }
