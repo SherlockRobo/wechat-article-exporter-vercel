@@ -12,6 +12,7 @@
 | 批量下载 | 批量抓取文章正文、留言和元数据 |
 | 自动保存 Markdown | 授权本地文件夹或 Obsidian Vault 后，抓取正文成功自动写入 `clipping/公众号/{account}/{title}.md` |
 | 保存策略 | 在“开始使用”页勾选本地缓存、自动 Markdown、Vault 保存和手动导出入口 |
+| 抓取记录 | 单独查看正文抓取、阅读量、留言、自动保存和手动导出历史 |
 | 多格式导出 | 支持 HTML、Markdown、JSON、Excel、TXT、DOCX、PDF |
 | 本地缓存 | 文章列表和正文缓存保存在浏览器 IndexedDB / LocalStorage |
 | Vercel 部署 | 支持 serverless 环境下的登录态保存和同源代理 |

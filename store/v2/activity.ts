@@ -61,3 +61,11 @@ export async function getLatestArticleActivityMap(urls: string[]) {
 
   return latest;
 }
+
+export async function getArticleActivities(limit = 500): Promise<ArticleActivity[]> {
+  return db.article_activity.orderBy('createdAt').reverse().limit(limit).toArray();
+}
+
+export async function clearArticleActivities(): Promise<void> {
+  await db.article_activity.clear();
+}

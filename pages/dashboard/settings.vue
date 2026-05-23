@@ -5,7 +5,6 @@
     </Teleport>
 
     <div class="h-full overflow-scroll">
-      <SettingProxy />
       <div class="flex flex-wrap">
         <SettingExport />
         <SettingMisc />
