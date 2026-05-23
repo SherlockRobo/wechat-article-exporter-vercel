@@ -12,6 +12,12 @@ export interface ProxyStatus {
 export interface DownloadOptions {
   concurrency?: number;
 
+  // 导出时复用已授权的目录句柄，避免再次弹出目录选择器
+  exportDirectoryHandle?: FileSystemDirectoryHandle | null;
+
+  // 覆盖本次导出的目录模板
+  dirnameTemplate?: string;
+
   // 资源下载超时时间
   timeout?: number;
 

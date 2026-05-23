@@ -6,9 +6,62 @@
     </template>
 
     <div class="flex flex-col space-y-5">
+      <div class="rounded-lg border border-green-700/20 bg-green-50/70 p-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h4 class="flex items-center gap-2 text-lg font-semibold text-cathay-green-dark">
+              <span class="i-lucide:folder-sync size-5" />
+              抓取后自动保存 Markdown
+            </h4>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-cathay-muted">
+              先选择本地文件夹或 Obsidian Vault 根目录。之后在“文章下载”里勾选文章并抓取正文，成功后会自动生成
+              <code class="rounded bg-white/70 px-1 py-0.5 font-mono text-xs">{{ autoSavePreview }}</code>。
+            </p>
+            <p class="mt-1 text-xs text-cathay-muted">
+              浏览器版只能写入你手动授权过的目录；第一次会弹出目录权限确认。
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-wrap gap-2">
+            <UButton
+              color="green"
+              icon="i-lucide:folder-open"
+              :disabled="!autoSaveSupported"
+              @click="selectDirectory"
+            >
+              选择本地/Vault目录
+            </UButton>
+            <UButton
+              v-if="preferences.exportConfig.autoSaveDirectoryName"
+              color="white"
+              icon="i-lucide:x"
+              @click="clearDirectory"
+            >
+              清除
+            </UButton>
+          </div>
+        </div>
+
+        <div class="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <UCheckbox
+            v-model="preferences.exportConfig.autoSaveMarkdownAfterFetch"
+            name="autoSaveMarkdownAfterFetch"
+            label="抓取成功后自动写入 Markdown"
+          />
+          <div class="rounded-md border border-green-700/15 bg-white/70 px-3 py-2 text-sm text-cathay-muted">
+            <p>
+              当前根目录：
+              <strong class="text-cathay-green-dark">{{ preferences.exportConfig.autoSaveDirectoryName || '未选择' }}</strong>
+            </p>
+            <p class="mt-1 truncate font-mono text-xs">
+              完整示例：{{ autoSaveLocationPreview }}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div>
         <p class="mb-2">
-          <span class="mr-3">导出目录名:</span>
+          <span class="mr-3">手动导出目录名:</span>
           <span class="inline-block w-8">
             <UPopover mode="hover" :popper="{ placement: 'right' }">
               <UButton color="white" size="sm" trailing-icon="i-heroicons:variable-16-solid" />
@@ -40,7 +93,7 @@
             </UPopover>
           </span>
         </p>
-        <p class="text-sm mb-2 text-gray-500">影响 <span class="font-mono">html/txt/markdown/word/pdf</span> 的导出</p>
+        <p class="text-sm mb-2 text-gray-500">影响手动 <span class="font-mono">html/txt/markdown/word/pdf</span> 导出；自动保存固定使用 <span class="font-mono">clipping/公众号/${account}/${title}.md</span></p>
         <UInput
           placeholder="目录名格式"
           class="w-[600px] font-mono"
@@ -96,9 +149,20 @@
 </template>
 
 <script setup lang="ts">
+import useAutoSaveMarkdown, { AUTO_SAVE_MARKDOWN_PREVIEW } from '~/composables/useAutoSaveMarkdown';
 import type { Preferences } from '~/types/preferences';
 
 const preferences: Ref<Preferences> = usePreferences() as unknown as Ref<Preferences>;
+const {
+  supported: autoSaveSupported,
+  selectDirectory,
+  clearDirectory,
+} = useAutoSaveMarkdown();
+const autoSavePreview = AUTO_SAVE_MARKDOWN_PREVIEW;
+const autoSaveLocationPreview = computed(() => {
+  const root = preferences.value.exportConfig.autoSaveDirectoryName || '你选择的目录';
+  return `${root}/${AUTO_SAVE_MARKDOWN_PREVIEW}`;
+});
 
 const sampleData: Record<string, string> = {
   account: '人民日报',

@@ -21,6 +21,8 @@ import GridArticleActions from '~/components/grid/ArticleActions.vue';
 import GridCoverTooltip from '~/components/grid/CoverTooltip.vue';
 import GridStatusBar from '~/components/grid/StatusBar.vue';
 import AccountSelectorForArticle from '~/components/selector/AccountSelectorForArticle.vue';
+import toastFactory from '~/composables/toast';
+import useAutoSaveMarkdown, { AUTO_SAVE_MARKDOWN_PREVIEW } from '~/composables/useAutoSaveMarkdown';
 import { isDev, websiteName } from '~/config';
 import { sharedGridOptions } from '~/config/shared-grid-options';
 import {
@@ -39,7 +41,7 @@ import { type MpAccount } from '~/store/v2/info';
 import { getMetadataCache, type Metadata } from '~/store/v2/metadata';
 import type { Preferences } from '~/types/preferences';
 import type { AppMsgExWithFakeID } from '~/types/types';
-import type { ArticleMetadata } from '~/utils/download/types';
+import type { ArticleMetadata, DownloaderStatus } from '~/utils/download/types';
 import { createBooleanColumnFilterParams, createDateColumnFilterParams } from '~/utils/grid';
 
 useHead({
@@ -423,6 +425,17 @@ function onFilterChanged(event: FilterChangedEvent) {
 
 const preferences = usePreferences();
 const hideDeleted = computed(() => (preferences.value as unknown as Preferences).hideDeleted);
+const toast = toastFactory();
+const {
+  enabled: autoSaveEnabled,
+  directoryName: autoSaveDirectoryName,
+  exportMarkdown: autoSaveMarkdown,
+} = useAutoSaveMarkdown();
+const autoSaveLoading = ref(false);
+const autoSaveLocationLabel = computed(() => {
+  const root = autoSaveDirectoryName.value || '未选择根目录';
+  return `${root}/${AUTO_SAVE_MARKDOWN_PREVIEW}`;
+});
 
 const previewArticleRef = ref<typeof PreviewArticle | null>(null);
 
@@ -571,6 +584,21 @@ async function recordExportActivities(type: ArticleExportFormat, urls: string[])
   }
 }
 
+async function autoSaveFetchedMarkdown(urls: string[]) {
+  if (!autoSaveEnabled.value || urls.length === 0) return;
+
+  try {
+    autoSaveLoading.value = true;
+    await autoSaveMarkdown(urls);
+    await recordExportActivities('markdown', urls);
+    toast.success('Markdown 已自动保存', `已写入 ${autoSaveLocationLabel.value}`);
+  } catch (error) {
+    toast.warning('自动保存失败', (error as Error).message);
+  } finally {
+    autoSaveLoading.value = false;
+  }
+}
+
 const {
   loading: downloadBtnLoading,
   completed_count: downloadCompletedCount,
@@ -653,6 +681,11 @@ const {
       void recordFetchActivity(url, 'fetch_comment', 'success');
     } else {
       console.warn(`${url} not found in table data when update commentDownload`);
+    }
+  },
+  onFinish(type: string, status: DownloaderStatus) {
+    if (type === 'html') {
+      void autoSaveFetchedMarkdown(status.completed);
     }
   },
 });
@@ -768,6 +801,28 @@ function copyWechatLink() {
           <UButton v-if="isDev" @click="debug">调试</UButton>
         </div>
       </header>
+
+      <div class="px-3 py-2 bg-cathay-card/70">
+        <div
+          class="flex flex-col gap-2 rounded-md border px-3 py-2 text-sm md:flex-row md:items-center md:justify-between"
+          :class="autoSaveEnabled ? 'border-green-700/20 bg-green-50/70 text-green-950' : 'border-amber-700/20 bg-amber-50/70 text-amber-950'"
+        >
+          <div class="flex min-w-0 items-start gap-2">
+            <UIcon :name="autoSaveEnabled ? 'i-lucide:folder-sync' : 'i-lucide:folder-cog'" class="mt-0.5 size-5 shrink-0" />
+            <div class="min-w-0">
+              <p class="font-semibold">
+                {{ autoSaveEnabled ? (autoSaveLoading ? '正在自动保存 Markdown...' : '抓取后自动保存 Markdown 已开启') : '建议先设置自动保存目录' }}
+              </p>
+              <p class="truncate text-xs opacity-80">
+                生成位置：{{ autoSaveLocationLabel }}
+              </p>
+            </div>
+          </div>
+          <NuxtLink to="/dashboard/settings" class="shrink-0 font-semibold text-cathay-green-dark hover:underline">
+            设置保存位置
+          </NuxtLink>
+        </div>
+      </div>
 
       <ag-grid-vue
         style="width: 100%; height: 100%"

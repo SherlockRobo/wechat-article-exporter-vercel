@@ -24,6 +24,9 @@ export interface DownloadArticleOptions {
 
   // 修复单篇文章下载的 fakeid 专用
   onFakeID: (url: string, fakeid: string) => void;
+
+  // 下载任务结束回调
+  onFinish: (type: DownloadTaskType, status: DownloaderStatus) => void | Promise<void>;
 }
 
 export default (options: Partial<DownloadArticleOptions> = {}) => {
@@ -77,6 +80,7 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
           '【文章内容】抓取完成',
           `本次抓取耗时 ${formatElapsedTime(seconds)}, 成功:${status.completed.length}, 失败:${status.failed.length}, 检测到已被删除:${status.deleted.length}`
         );
+        void options.onFinish?.('html', status);
       });
       downloader.on('download:stop', () => {
         toast.info('HTML下载任务已停止');
@@ -136,6 +140,7 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
           '【阅读量】抓取完成',
           `本次抓取耗时 ${formatElapsedTime(seconds)}, 成功:${status.completed.length}, 失败:${status.failed.length}, 检测到已被删除:${status.deleted.length}`
         );
+        void options.onFinish?.('metadata', status);
       });
 
       await downloader.startDownload('metadata');
@@ -180,6 +185,7 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
           '【留言内容】抓取完成',
           `本次抓取耗时 ${formatElapsedTime(seconds)}, 成功:${status.completed.length}, 失败:${status.failed.length}`
         );
+        void options.onFinish?.('comment', status);
       });
 
       await downloader.startDownload('comments');
@@ -227,6 +233,7 @@ export default (options: Partial<DownloadArticleOptions> = {}) => {
           '【fakeid】修复完成',
           `本次耗时 ${formatElapsedTime(seconds)}, 成功:${status.completed.length}, 失败:${status.failed.length}`
         );
+        void options.onFinish?.('fakeid', status);
       });
 
       await downloader.startDownload('fakeid');

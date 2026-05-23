@@ -26,6 +26,12 @@ interface ExportConfig {
   // 目录名格式
   dirname: string;
 
+  // 抓取文章内容成功后，自动导出 Markdown
+  autoSaveMarkdownAfterFetch: boolean;
+
+  // 自动保存目录名（真实目录句柄保存在 IndexedDB）
+  autoSaveDirectoryName: string;
+
   // 目录最大长度
   maxlength: number;
 

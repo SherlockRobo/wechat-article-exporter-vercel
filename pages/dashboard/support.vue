@@ -1,7 +1,7 @@
 <template>
   <div class="support-page flex h-full flex-col">
     <Teleport defer to="#title">
-      <h1 class="text-[28px] leading-[34px] font-bold">说明与打赏</h1>
+      <h1 class="text-[28px] leading-[34px] font-bold">开始使用</h1>
     </Teleport>
 
     <div class="flex-1 overflow-auto px-5 py-6 lg:px-8">
@@ -11,7 +11,8 @@
           <h2>把公众号文章下载成 Markdown，放进自己的长期知识库。</h2>
           <p class="ticket-copy">
           这是一个可自部署的微信公众号文章导出工具，适合把自己有权访问的文章列表、正文和元数据导出为
-          Markdown、HTML、JSON、Excel、TXT、DOCX 或 PDF，手动放进 Obsidian Vault，便于归档、检索和二次整理。
+          Markdown、HTML、JSON、Excel、TXT、DOCX 或 PDF。推荐先选择本地文件夹或 Obsidian Vault，抓取成功后自动写入
+          <code>clipping/公众号/公众号名/文章标题.md</code>，便于归档、检索和二次整理。
           </p>
         </div>
         <div class="ticket-stamp" aria-hidden="true">
@@ -30,10 +31,10 @@
         </div>
         <div class="travel-card">
           <div class="i-lucide:folder-down card-icon" />
-          <h3>下载后放进 Obsidian</h3>
+          <h3>抓取后自动进 Vault</h3>
           <p>
-            推荐导出目录为 <code>公众号/{account}/{title}</code>，
-            同一个公众号的文章会自然聚在一起。
+            在“设置”里选择 Vault 或普通文件夹，打开自动保存。抓取正文成功后，Markdown 会自动写到
+            <code>clipping/公众号/{account}/{title}.md</code>。
           </p>
         </div>
         <div class="travel-card">
@@ -59,11 +60,11 @@
             推荐流程
           </h3>
           <ol>
-            <li>1. 在“公众号管理”添加目标公众号，并同步文章列表。</li>
-            <li>2. 在“文章下载”选择文章，先点击“抓取”下载正文内容。</li>
-            <li>3. 在“设置”确认导出目录规则，例如 <code>公众号/{account}/{title}</code>。</li>
-            <li>4. 导出 Markdown 或其他格式，手动放入 Obsidian、Logseq、Notion 或自己的文件库。</li>
-            <li>5. 回到文章列表查看抓取和导出记录，继续处理未归档的文章。</li>
+            <li>1. 在“设置”选择本地文件夹或 Obsidian Vault 根目录，并开启自动保存 Markdown。</li>
+            <li>2. 在“公众号管理”添加目标公众号，并同步文章列表。</li>
+            <li>3. 在“文章下载”选择文章，点击“抓取”下载正文内容。</li>
+            <li>4. 抓取成功后，文件自动出现在 <code>clipping/公众号/{account}/{title}.md</code>。</li>
+            <li>5. 不用 Obsidian 的用户也可以选择普通文件夹，用 VS Code、Typora、Notion 或飞书打开。</li>
           </ol>
         </div>
 
@@ -106,7 +107,7 @@ import officialAccountQr from '~/assets/qrcode-official-account.jpg';
 import { websiteName } from '~/config';
 
 useHead({
-  title: `说明与打赏 | ${websiteName}`,
+  title: `开始使用 | ${websiteName}`,
 });
 </script>
 

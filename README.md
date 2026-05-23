@@ -10,6 +10,7 @@
 |---|---|
 | 公众号管理 | 搜索、添加公众号，同步文章列表 |
 | 批量下载 | 批量抓取文章正文、留言和元数据 |
+| 自动保存 Markdown | 授权本地文件夹或 Obsidian Vault 后，抓取正文成功自动写入 `clipping/公众号/{account}/{title}.md` |
 | 多格式导出 | 支持 HTML、Markdown、JSON、Excel、TXT、DOCX、PDF |
 | 本地缓存 | 文章列表和正文缓存保存在浏览器 IndexedDB / LocalStorage |
 | Vercel 部署 | 支持 serverless 环境下的登录态保存和同源代理 |
@@ -25,9 +26,11 @@ yarn dev
 打开 `http://localhost:3000`，扫码登录后按下面流程使用：
 
 1. 在“公众号管理”添加目标公众号并同步文章列表。
-2. 在“文章下载”选择文章，点击“抓取”下载正文。
-3. 在“设置”确认导出目录规则，例如 `公众号/{account}/{title}`。
-4. 导出 Markdown 或其他格式，保存到自己的知识库目录。
+2. 在“设置”选择本地文件夹或 Obsidian Vault 根目录，并开启自动保存 Markdown。
+3. 在“文章下载”选择文章，点击“抓取”下载正文。
+4. 抓取成功后，Markdown 自动生成到 `clipping/公众号/{account}/{title}.md`。
+
+不用 Obsidian 的用户可以选择普通文件夹，之后用 VS Code、Typora、Notion 导入、飞书文档导入或任意 Markdown 编辑器打开。
 
 ## 部署到 Vercel
 
@@ -51,6 +54,7 @@ MP_SESSION_SECRET=change_me_to_a_long_random_secret
 | 文章列表 | 当前浏览器 IndexedDB |
 | 正文缓存 | 当前浏览器 IndexedDB |
 | 导出配置 | 当前浏览器 LocalStorage / IndexedDB |
+| 自动保存目录授权 | 当前浏览器 IndexedDB，只能写入用户手动授权过的目录 |
 | 微信登录态 | 加密后写入浏览器 cookie |
 | 服务器文章库 | 不保存 |
 

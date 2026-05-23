@@ -53,6 +53,8 @@ export class BaseDownloader {
 
     this.options = {
       concurrency: options.concurrency ?? bestConcurrencyCount(uniqueProxies.length),
+      exportDirectoryHandle: options.exportDirectoryHandle ?? null,
+      dirnameTemplate: options.dirnameTemplate ?? '',
       timeout: options.timeout ?? DEFAULT_OPTIONS.TIMEOUT,
       maxRetries: options.maxRetries ?? DEFAULT_OPTIONS.MAX_RETRIES,
       cooldownPeriod: options.cooldownPeriod ?? DEFAULT_OPTIONS.COOLDOWN_PERIOD,

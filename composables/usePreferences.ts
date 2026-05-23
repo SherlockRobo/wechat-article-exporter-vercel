@@ -7,7 +7,9 @@ const defaultOptions: Partial<Preferences> = {
   privateProxyList: [],
   privateProxyAuthorization: '',
   exportConfig: {
-    dirname: '${title}',
+    dirname: 'clipping/公众号/${account}/${title}',
+    autoSaveMarkdownAfterFetch: false,
+    autoSaveDirectoryName: '',
     maxlength: 0,
     exportExcelIncludeContent: true,
     exportJsonIncludeComments: true,

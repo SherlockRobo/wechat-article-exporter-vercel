@@ -33,6 +33,7 @@ export class Exporter extends BaseDownloader {
   constructor(urls: string[], options: DownloadOptions = {}) {
     super(urls, options);
     this.resources = new Set();
+    this.exportRootDirectoryHandle = this.options.exportDirectoryHandle;
   }
 
   // 启动导出任务
@@ -955,7 +956,7 @@ ${commentHTML}
 
   // 确定导出文件的目录名
   private async exportDirName(articleUrl: string): Promise<string> {
-    let dirnameTpl = (preferences.value as Preferences).exportConfig.dirname;
+    let dirnameTpl = this.options.dirnameTemplate || (preferences.value as Preferences).exportConfig.dirname;
     const maxlength = (preferences.value as Preferences).exportConfig.maxlength;
 
     const article = await getArticleByLink(articleUrl);
