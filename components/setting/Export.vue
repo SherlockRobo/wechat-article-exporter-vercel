@@ -57,6 +57,22 @@
             </p>
           </div>
         </div>
+        <div class="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <p class="text-sm font-semibold text-cathay-green-dark">Markdown 存放路径</p>
+          <div class="grid gap-2">
+            <USelectMenu
+              v-model="selectedPathPreset"
+              :options="AUTO_SAVE_PATH_PRESETS"
+              value-attribute="value"
+              option-attribute="label"
+            />
+            <UInput
+              v-model="preferences.exportConfig.autoSaveMarkdownDirname"
+              class="font-mono"
+              placeholder="例如 clipping/公众号/${account}/${title}"
+            />
+          </div>
+        </div>
       </div>
 
       <div>
@@ -93,7 +109,7 @@
             </UPopover>
           </span>
         </p>
-        <p class="text-sm mb-2 text-gray-500">影响手动 <span class="font-mono">html/txt/markdown/word/pdf</span> 导出；自动保存固定使用 <span class="font-mono">clipping/公众号/${account}/${title}.md</span></p>
+        <p class="text-sm mb-2 text-gray-500">影响手动 <span class="font-mono">html/txt/markdown/word/pdf</span> 导出；自动保存使用上方选择的 Markdown 存放路径</p>
         <UInput
           placeholder="目录名格式"
           class="w-[600px] font-mono"
@@ -117,6 +133,13 @@
             min="0"
           />
         </p>
+      </div>
+      <div>
+        <UCheckbox
+          v-model="preferences.exportConfig.showManualExportActions"
+          name="showManualExportActions"
+          label="文章页保留手动导出按钮"
+        />
       </div>
       <div>
         <UCheckbox
@@ -149,19 +172,31 @@
 </template>
 
 <script setup lang="ts">
-import useAutoSaveMarkdown, { AUTO_SAVE_MARKDOWN_PREVIEW } from '~/composables/useAutoSaveMarkdown';
+import useAutoSaveMarkdown, { AUTO_SAVE_PATH_PRESETS } from '~/composables/useAutoSaveMarkdown';
 import type { Preferences } from '~/types/preferences';
 
 const preferences: Ref<Preferences> = usePreferences() as unknown as Ref<Preferences>;
 const {
   supported: autoSaveSupported,
+  pathPreview: autoSavePathPreview,
   selectDirectory,
   clearDirectory,
 } = useAutoSaveMarkdown();
-const autoSavePreview = AUTO_SAVE_MARKDOWN_PREVIEW;
+const autoSavePreview = autoSavePathPreview;
 const autoSaveLocationPreview = computed(() => {
   const root = preferences.value.exportConfig.autoSaveDirectoryName || '你选择的目录';
-  return `${root}/${AUTO_SAVE_MARKDOWN_PREVIEW}`;
+  return `${root}/${autoSavePathPreview.value}`;
+});
+const selectedPathPreset = computed({
+  get() {
+    const current = preferences.value.exportConfig.autoSaveMarkdownDirname;
+    return AUTO_SAVE_PATH_PRESETS.some(item => item.value === current) ? current : 'custom';
+  },
+  set(value: string) {
+    if (value !== 'custom') {
+      preferences.value.exportConfig.autoSaveMarkdownDirname = value;
+    }
+  },
 });
 
 const sampleData: Record<string, string> = {

@@ -9,15 +9,50 @@ import {
   verifyDirectoryPermission,
 } from '~/utils/file-system-access';
 
-export const AUTO_SAVE_MARKDOWN_DIRNAME = 'clipping/公众号/${account}/${title}';
-export const AUTO_SAVE_MARKDOWN_PREVIEW = 'clipping/公众号/人民日报/这是一篇示例文章标题.md';
+export const DEFAULT_AUTO_SAVE_MARKDOWN_DIRNAME = 'clipping/公众号/${account}/${title}';
+
+export const AUTO_SAVE_PATH_PRESETS = [
+  { label: 'Clipping / 公众号 / 文章', value: 'clipping/公众号/${account}/${title}' },
+  { label: '公众号 / 文章', value: '公众号/${account}/${title}' },
+  { label: '公众号 / 年 / 月 / 文章', value: '${account}/${YYYY}/${MM}/${title}' },
+  { label: '日期 / 公众号 / 文章', value: '${YYYY}/${MM}/${DD}/${account}/${title}' },
+  { label: '自定义模板', value: 'custom' },
+];
+
+const sampleData: Record<string, string> = {
+  account: '人民日报',
+  title: '这是一篇示例文章标题',
+  aid: '100000001',
+  author: '张三',
+  YYYY: '2026',
+  MM: '05',
+  DD: '23',
+  HH: '09',
+  mm: '30',
+};
+
+export function renderAutoSavePathPreview(template = DEFAULT_AUTO_SAVE_MARKDOWN_DIRNAME): string {
+  let result = template || DEFAULT_AUTO_SAVE_MARKDOWN_DIRNAME;
+  for (const [key, value] of Object.entries(sampleData)) {
+    result = result.replace(new RegExp(`\\$\\{${key}}`, 'g'), value);
+  }
+  return `${result}.md`;
+}
 
 export default () => {
   const toast = toastFactory();
   const preferences: Ref<Preferences> = usePreferences() as unknown as Ref<Preferences>;
+  if (!preferences.value.exportConfig.autoSaveMarkdownDirname) {
+    preferences.value.exportConfig.autoSaveMarkdownDirname = DEFAULT_AUTO_SAVE_MARKDOWN_DIRNAME;
+  }
+  if (typeof preferences.value.exportConfig.showManualExportActions !== 'boolean') {
+    preferences.value.exportConfig.showManualExportActions = true;
+  }
 
   const enabled = computed(() => preferences.value.exportConfig.autoSaveMarkdownAfterFetch);
   const directoryName = computed(() => preferences.value.exportConfig.autoSaveDirectoryName);
+  const dirnameTemplate = computed(() => preferences.value.exportConfig.autoSaveMarkdownDirname || DEFAULT_AUTO_SAVE_MARKDOWN_DIRNAME);
+  const pathPreview = computed(() => renderAutoSavePathPreview(dirnameTemplate.value));
   const supported = computed(() => process.client && isFileSystemAccessSupported());
 
   async function selectDirectory() {
@@ -34,7 +69,7 @@ export default () => {
     await saveAutoSaveDirectoryHandle(handle);
     preferences.value.exportConfig.autoSaveDirectoryName = handle.name;
     preferences.value.exportConfig.autoSaveMarkdownAfterFetch = true;
-    toast.success('保存位置已设置', `抓取后会自动保存到 ${handle.name}/${AUTO_SAVE_MARKDOWN_PREVIEW}`);
+    toast.success('保存位置已设置', `抓取后会自动保存到 ${handle.name}/${pathPreview.value}`);
   }
 
   async function clearDirectory() {
@@ -59,7 +94,7 @@ export default () => {
 
     const exporter = new Exporter(urls, {
       exportDirectoryHandle: handle,
-      dirnameTemplate: AUTO_SAVE_MARKDOWN_DIRNAME,
+      dirnameTemplate: dirnameTemplate.value,
     });
     await exporter.startExport('markdown');
   }
@@ -67,6 +102,8 @@ export default () => {
   return {
     enabled,
     directoryName,
+    dirnameTemplate,
+    pathPreview,
     supported,
     selectDirectory,
     clearDirectory,

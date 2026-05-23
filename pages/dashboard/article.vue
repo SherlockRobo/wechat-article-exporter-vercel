@@ -22,7 +22,7 @@ import GridCoverTooltip from '~/components/grid/CoverTooltip.vue';
 import GridStatusBar from '~/components/grid/StatusBar.vue';
 import AccountSelectorForArticle from '~/components/selector/AccountSelectorForArticle.vue';
 import toastFactory from '~/composables/toast';
-import useAutoSaveMarkdown, { AUTO_SAVE_MARKDOWN_PREVIEW } from '~/composables/useAutoSaveMarkdown';
+import useAutoSaveMarkdown from '~/composables/useAutoSaveMarkdown';
 import { isDev, websiteName } from '~/config';
 import { sharedGridOptions } from '~/config/shared-grid-options';
 import {
@@ -429,12 +429,16 @@ const toast = toastFactory();
 const {
   enabled: autoSaveEnabled,
   directoryName: autoSaveDirectoryName,
+  pathPreview: autoSavePathPreview,
   exportMarkdown: autoSaveMarkdown,
 } = useAutoSaveMarkdown();
 const autoSaveLoading = ref(false);
 const autoSaveLocationLabel = computed(() => {
   const root = autoSaveDirectoryName.value || '未选择根目录';
-  return `${root}/${AUTO_SAVE_MARKDOWN_PREVIEW}`;
+  return `${root}/${autoSavePathPreview.value}`;
+});
+const showManualExportActions = computed(() => {
+  return (preferences.value as unknown as Preferences).exportConfig.showManualExportActions !== false;
 });
 
 const previewArticleRef = ref<typeof PreviewArticle | null>(null);
@@ -744,6 +748,7 @@ function copyWechatLink() {
         <div class="flex items-center space-x-2">
           <UButton v-if="downloadBtnLoading" color="black" @click="stopDownload">停止</UButton>
           <ButtonGroup
+            v-if="showManualExportActions"
             :items="[
               { label: '文章内容', event: 'download-article-html' },
               { label: '阅读量 (需要Credential)', event: 'download-article-metadata' },

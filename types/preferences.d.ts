@@ -32,6 +32,12 @@ interface ExportConfig {
   // 自动保存目录名（真实目录句柄保存在 IndexedDB）
   autoSaveDirectoryName: string;
 
+  // 自动保存 Markdown 的路径模板
+  autoSaveMarkdownDirname: string;
+
+  // 是否显示手动导出按钮
+  showManualExportActions: boolean;
+
   // 目录最大长度
   maxlength: number;
 

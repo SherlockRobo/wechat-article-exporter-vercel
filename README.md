@@ -11,6 +11,7 @@
 | 公众号管理 | 搜索、添加公众号，同步文章列表 |
 | 批量下载 | 批量抓取文章正文、留言和元数据 |
 | 自动保存 Markdown | 授权本地文件夹或 Obsidian Vault 后，抓取正文成功自动写入 `clipping/公众号/{account}/{title}.md` |
+| 保存策略 | 在“开始使用”页勾选本地缓存、自动 Markdown、Vault 保存和手动导出入口 |
 | 多格式导出 | 支持 HTML、Markdown、JSON、Excel、TXT、DOCX、PDF |
 | 本地缓存 | 文章列表和正文缓存保存在浏览器 IndexedDB / LocalStorage |
 | Vercel 部署 | 支持 serverless 环境下的登录态保存和同源代理 |
@@ -26,7 +27,7 @@ yarn dev
 打开 `http://localhost:3000`，扫码登录后按下面流程使用：
 
 1. 在“公众号管理”添加目标公众号并同步文章列表。
-2. 在“设置”选择本地文件夹或 Obsidian Vault 根目录，并开启自动保存 Markdown。
+2. 在“开始使用”页选择保存策略：勾选自动 Markdown、选择本地文件夹或 Obsidian Vault 根目录，并选择 Markdown 存放路径。
 3. 在“文章下载”选择文章，点击“抓取”下载正文。
 4. 抓取成功后，Markdown 自动生成到 `clipping/公众号/{account}/{title}.md`。
 

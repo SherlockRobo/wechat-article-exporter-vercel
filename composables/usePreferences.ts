@@ -10,6 +10,8 @@ const defaultOptions: Partial<Preferences> = {
     dirname: 'clipping/公众号/${account}/${title}',
     autoSaveMarkdownAfterFetch: false,
     autoSaveDirectoryName: '',
+    autoSaveMarkdownDirname: 'clipping/公众号/${account}/${title}',
+    showManualExportActions: true,
     maxlength: 0,
     exportExcelIncludeContent: true,
     exportJsonIncludeComments: true,
